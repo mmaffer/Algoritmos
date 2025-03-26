@@ -10,3 +10,4 @@ def fibonacci(n):
 print("fibonacci(0) =", fibonacci(0))     # 0
 print("fibonacci(1) =", fibonacci(1))     # 1
 print("fibonacci(2) =", fibonacci(2))     # 1
+
