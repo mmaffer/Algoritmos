@@ -1,7 +1,7 @@
 import re
 
 class HTMLTagChecker:
-    def _init_(self, html_content):
+    def __init__(self, html_content):
         self.html = html_content
         self.stack = []
         self.tag_pattern = re.compile(r'</?([a-zA-Z0-9]+)>')
