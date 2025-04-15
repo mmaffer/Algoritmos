@@ -1,7 +1,7 @@
 class Stack:
     """Simple Stack implementation using a list."""
     
-    def _init_(self):
+    def __init__(self):
         self.items = []
 
     def is_empty(self):
