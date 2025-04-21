@@ -1,7 +1,7 @@
 class MinStack:
     """Stack that supports retrieving the minimum element in O(1) time."""
 
-    def _init_(self):
+    def __init__(self):
         self.stack = []      
         self.min_stack = []  
 
