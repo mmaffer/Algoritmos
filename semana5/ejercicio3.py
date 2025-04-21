@@ -1,61 +1,68 @@
-import heapq
-class PriorityQueue:
-    """Priority queue implementation using a binary heap."""
+# Exercise 3: Hot potato game
+import random
+
+class SimpleQueue:
+    """Simple queue implementation using a Python list."""
     
     def __init__(self):
-        self._heap = []
-        self._count = 0  # To maintain insertion order on same priority
-
-    def enqueue(self, item, priority):
-        """
-        Add an item with the given priority.
-        Higher number means higher priority.
-        """
-        heapq.heappush(self._heap, (-priority, self._count, item))
-        self._count += 1
-
+        self.items = []
+    
+    def enqueue(self, item):
+        self.items.append(item)
+    
     def dequeue(self):
-        """
-        Remove and return the item with the highest priority.
-        Raises IndexError if the queue is empty.
-        """
         if self.is_empty():
-            raise IndexError("Priority queue is empty")
-        return heapq.heappop(self._heap)[2]
-
+            raise IndexError("Queue is empty")
+        return self.items.pop(0)
+    
     def peek(self):
-        """
-        Return the item with the highest priority without removing it.
-        Raises IndexError if the queue is empty.
-        """
         if self.is_empty():
-            raise IndexError("Priority queue is empty")
-        return self._heap[0][2]
-
+            raise IndexError("Queue is empty")
+        return self.items[0]
+    
     def is_empty(self):
-        """Check if the priority queue is empty."""
-        return len(self._heap) == 0
-
+        return len(self.items) == 0
+    
     def size(self):
-        """Return the number of items in the priority queue."""
-        return len(self._heap)
-
-    def __str__(self):
-        """Return a string representation of the queue."""
-        return f"PriorityQueue: {[item[2] for item in sorted(self._heap)]}"
+        return len(self.items)
 
 
-# Ejemplo de uso:
-if __name__ == "__main__":
-    pq = PriorityQueue()
-    pq.enqueue("A", 2)
-    pq.enqueue("B", 3)
-    pq.enqueue("C", 1)
-    pq.enqueue("D", 3)
+def hot_potato_game(players, max_passes):
+    """
+    Simulate the Hot Potato game using a queue with emoji-style output.
+    """
+    queue = SimpleQueue()
+    
+    for player in players:
+        queue.enqueue(player)
 
-    print("Elemento con mayor prioridad:", pq.peek())  # B
-    print("Atendiendo:", pq.dequeue())  # B
-    print("Atendiendo:", pq.dequeue())  # D
-    print("Tamaño actual:", pq.size())  # 2
-    print("¿Está vacía?:", pq.is_empty())  # False
-    print("Cola actual:", pq)
+    while queue.size() > 1:
+        passes = random.randint(1, max_passes)
+        print(f"\n🎲 Ronda: {passes} {'pase' if passes == 1 else 'pases'}")
+
+        for _ in range(passes):
+            passed = queue.dequeue()
+            queue.enqueue(passed)
+            print(f"📦 Pasó a {queue.peek()}")
+
+        eliminated = queue.dequeue()
+        print(f"💥 Eliminado: {eliminated}")
+
+    winner = queue.dequeue()
+    print(f"\n🏆 Ganador: {winner}")
+    return winner
+
+# Test Case 1
+players1 = ["Alice", "Bob", "Charlie"]
+winner1 = hot_potato_game(players1, 3)
+print("Winner (Test 1):", winner1)
+
+# Test Case 2
+players2 = ["Anna", "Ben", "Cathy", "Dan", "Ella"]
+winner2 = hot_potato_game(players2, 5)
+print("Winner (Test 2):", winner2)
+
+# Test Case 3
+players3 = ["Tom", "Jerry"]
+winner3 = hot_potato_game(players3, 1)
+print("Winner (Test 3):", winner3)

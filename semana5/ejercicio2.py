@@ -1,84 +1,48 @@
-class MyCircularDeque:
+from collections import deque
 
+class TreeNode:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
 
-    def __init__(self, k: int):
-        self.capacity = k
-        self.deque = [None] * k
-        self.front = 0
-        self.rear = 0
-        self.size = 0
+def level_order_traversal(root):
+    if root is None:
+        return []
 
+    result = []
+    queue = deque()
+    queue.append(root)
 
-    #insertFront
-    def insertFront(self, value: int) -> bool:
-        if self.isFull():
-            return False
-        self.front = (self.front - 1) % self.capacity
-        self.deque[self.front] = value
-        self.size += 1
-        return True
+    while queue:
+        current_node = queue.popleft()
+        result.append(current_node.value)
 
+        if current_node.left is not None:
+            queue.append(current_node.left)
+        if current_node.right is not None:
+            queue.append(current_node.right)
 
-    #insertLast
-    def insertLast(self, value: int) -> bool:
-        if self.isFull():
-            return False
-        self.deque[self.rear] = value
-        self.rear = (self.rear + 1) % self.capacity
-        self.size += 1
-        return True
+    return result
 
+def print_test_case(title, root):
+    result = level_order_traversal(root)
+    print(f"{title} : {result}")
 
-    #deleteFront
-    def deleteFront(self) -> bool:
-        if self.isEmpty():
-            return False
-        self.front = (self.front + 1) % self.capacity
-        self.size -= 1
-        return True
+# TEST CASES
 
+# Case 1: Empty Tree
+print_test_case("Test Case 1: Empty Tree", None)  # Expected: []
 
-    #deleteLast
-    def deleteLast(self) -> bool:
-        if self.isEmpty():
-            return False
-        self.rear = (self.rear - 1) % self.capacity
-        self.size -= 1
-        return True
+# Case 2: Single Node
+single = TreeNode(10)
+print_test_case("Test Case 2: Single Node Tree", single)  # Expected: [10]
 
-
-    #getFront
-    def getFront(self) -> int:
-        if self.isEmpty():
-            return -1
-        return self.deque[self.front]
-
-
-    #getRear
-    def getRear(self) -> int:
-        if self.isEmpty():
-            return -1
-        return self.deque[(self.rear - 1) % self.capacity]
-
-
-    #isEmpty
-    def isEmpty(self) -> bool:
-        return self.size == 0
-
-
-    #isFull
-    def isFull(self) -> bool:
-        return self.size == self.capacity
-   
-deque = MyCircularDeque(3)
-print(deque.insertLast(1))   # True
-print(deque.insertLast(2))   # True
-print(deque.insertFront(3))  # True
-print(deque.insertFront(4))  # False, está lleno
-print(deque.getRear())       # 2
-print(deque.isFull())        # True
-print(deque.deleteLast())    # True
-print(deque.insertFront(4))  # True
-print(deque.getFront())      # 4
-
-
+# Case 3: Full Binary Tree
+root = TreeNode(1)
+root.left = TreeNode(2)
+root.right = TreeNode(3)
+root.left.left = TreeNode(4)
+root.left.right = TreeNode(5)
+root.right.right = TreeNode(6)
+print_test_case("Test Case 3: Full Binary Tree", root)  # Expected: [1, 2, 3, 4, 5, 6]
