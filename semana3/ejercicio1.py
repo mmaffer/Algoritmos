@@ -1,6 +1,5 @@
 class Node:
     """Node in a linked list, stores data and reference to the next node."""
-    
     def __init__(self, data=None):
         self.data = data
         self.next = None
