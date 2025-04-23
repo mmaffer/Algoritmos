@@ -38,6 +38,8 @@ class HTMLTagChecker:
         return len(self.stack) == 0
 
 
+#test cases
+
 # Test 1
 html1 = "<html><body><h1>Hello</h1></body></html>"
 checker1 = HTMLTagChecker(html1)
