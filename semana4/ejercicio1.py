@@ -33,6 +33,7 @@ def reverse_string(input_string):
         reversed_str += stack.pop()
 
     return reversed_str
+
 # Test Cases
 print(reverse_string("hello"))        
 print(reverse_string("Stack"))        
