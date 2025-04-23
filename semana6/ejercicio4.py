@@ -1,71 +1,52 @@
-class CircularQueueMax:
-    def __init__(self, size):
-        self.size = size
-        self.queue = [0] * size  # Stores indices
-        self.start = 0
-        self.end = 0
-        self.count = 0
+class Task:
+    def __init__(self, name, total_time):
+        self.name = name
+        self.total_time = total_time  # Total time required by the process
+        self.remaining_time = total_time  # Remaining time for the process
 
-    def is_empty(self):
-        return self.count == 0
+def round_robin_scheduling(tasks, time_quantum):
+    queue = tasks[:]  # We make a copy of the task list
+    total_waiting_time = 0
+    total_turnaround_time = 0
+    time_elapsed = 0
+    completed_tasks = 0  # To keep track of completed processes
 
-    def is_full(self):
-        return self.count == self.size
+    front = 0  # Index indicating the first process (front of the queue)
 
-    def add_end(self, value):
-        if not self.is_full():
-            self.queue[self.end] = value
-            self.end = (self.end + 1) % self.size
-            self.count += 1
+    while completed_tasks < len(tasks):  # While not all processes are complete
+        task = queue[front]  # We take the first process in the queue
 
-    def remove_start(self):
-        if not self.is_empty():
-            value = self.queue[self.start]
-            self.start = (self.start + 1) % self.size
-            self.count -= 1
-            return value
+        if task.remaining_time > time_quantum:
+            # If the process needs more time than the quantum, reduce the remaining time
+            task.remaining_time -= time_quantum
+            time_elapsed += time_quantum
+        else:
+            # If the process finishes in this cycle
+            time_elapsed += task.remaining_time
+            turnaround_time = time_elapsed
+            waiting_time = turnaround_time - task.total_time
+            total_turnaround_time += turnaround_time
+            total_waiting_time += waiting_time
+            print(f"Process {task.name} completed. Waiting time: {waiting_time}, Turnaround time: {turnaround_time}")
+            completed_tasks += 1  # We increment the completed processes
+            task.remaining_time = 0  # The process has finished
 
-    def end_value(self):
-        return self.queue[(self.end - 1 + self.size) % self.size]
+        # We cyclically move to the next process (simulating a circular queue)
+        front = (front + 1) % len(queue)
 
-    def front_value(self):
-        return self.queue[self.start]
+    # Calculate the average waiting time and turnaround time
+    num_tasks = len(tasks)
+    avg_waiting_time = total_waiting_time / num_tasks
+    avg_turnaround_time = total_turnaround_time / num_tasks
 
-    def traverse(self):
-        res = []
-        i = self.start
-        for _ in range(self.count):
-            res.append(self.queue[i])
-            i = (i + 1) % self.size
-        return res
+    print(f"\nAverage waiting time: {avg_waiting_time}")
+    print(f"Average turnaround time: {avg_turnaround_time}")
 
-def sliding_window_max_no_deque(nums, k):
-    if not nums or k == 0:
-        return []
+# Example of usage
+tasks = [
+    Task("T1", 1),  # Process with total time of 10 units
+    Task("T2", 3),   # Process with total time of 5 units
+    Task("T3", 1)    # Process with total time of 8 units
+]
 
-    n = len(nums)
-    max_values = []
-    queue = CircularQueueMax(n)  # Circular queue of same size as nums
-
-    for i in range(n):
-        # Remove indices out of window range
-        if not queue.is_empty() and queue.front_value() < i - k + 1:
-            queue.remove_start()
-
-        # Remove from end elements smaller than nums[i]
-        while not queue.is_empty() and nums[queue.end_value()] < nums[i]:
-            queue.end = (queue.end - 1 + queue.size) % queue.size
-            queue.count -= 1
-
-        # Add current index
-        queue.add_end(i)
-
-        # Store the max if window is full
-        if i >= k - 1:
-            max_values.append(nums[queue.front_value()])
-
-    return max_values
-
-num = [1, 3, -1, -3, 5, 3, 6, 7]
-k = 3
-print(sliding_window_max_no_deque(num, k))  # Output: [3, 3, 5, 5, 6, 7]
+round_robin_scheduling(tasks, time_quantum=4)

@@ -65,3 +65,7 @@ def sliding_window_max_no_deque(nums, k):
             max_values.append(nums[queue.front_value()])
 
     return max_values
+
+num = [1, 3, -1, -3, 5, 3, 6, 7]
+k = 3
+print(sliding_window_max_no_deque(num, k))  # Output: [3, 3, 5, 5, 6, 7]
