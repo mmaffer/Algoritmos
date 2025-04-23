@@ -1,5 +1,4 @@
 import re
-
 class HTMLTagChecker:
     def __init__(self, html_content):
         self.html = html_content
