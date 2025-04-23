@@ -1,75 +1,67 @@
-# Implementación del Sliding Window Maximum SIN usar deque.
-# En su lugar, crearemos una cola circular manual con una lista y dos punteros.
-
-class ColaCircularMax:
-    def __init__(self, tamaño):
-        self.tamaño = tamaño
-        self.cola = [0] * tamaño  # Guarda índices
-        self.inicio = 0
-        self.fin = 0
+class CircularQueueMax:
+    def __init__(self, size):
+        self.size = size
+        self.queue = [0] * size  # Stores indices
+        self.start = 0
+        self.end = 0
         self.count = 0
 
-    def esta_vacia(self):
+    def is_empty(self):
         return self.count == 0
 
-    def esta_llena(self):
-        return self.count == self.tamaño
+    def is_full(self):
+        return self.count == self.size
 
-    def agregar_final(self, valor):
-        if not self.esta_llena():
-            self.cola[self.fin] = valor
-            self.fin = (self.fin + 1) % self.tamaño
+    def add_end(self, value):
+        if not self.is_full():
+            self.queue[self.end] = value
+            self.end = (self.end + 1) % self.size
             self.count += 1
 
-    def quitar_inicio(self):
-        if not self.esta_vacia():
-            valor = self.cola[self.inicio]
-            self.inicio = (self.inicio + 1) % self.tamaño
+    def remove_start(self):
+        if not self.is_empty():
+            value = self.queue[self.start]
+            self.start = (self.start + 1) % self.size
             self.count -= 1
-            return valor
+            return value
 
-    def final_valor(self):
-        return self.cola[(self.fin - 1 + self.tamaño) % self.tamaño]
+    def end_value(self):
+        return self.queue[(self.end - 1 + self.size) % self.size]
 
-    def frente_valor(self):
-        return self.cola[self.inicio]
+    def front_value(self):
+        return self.queue[self.start]
 
-    def recorrer(self):
+    def traverse(self):
         res = []
-        i = self.inicio
+        i = self.start
         for _ in range(self.count):
-            res.append(self.cola[i])
-            i = (i + 1) % self.tamaño
+            res.append(self.queue[i])
+            i = (i + 1) % self.size
         return res
 
-def sliding_window_max_sin_deque(nums, k):
+def sliding_window_max_no_deque(nums, k):
     if not nums or k == 0:
         return []
 
     n = len(nums)
-    maximos = []
-    cola = ColaCircularMax(n)  # Cola circular del mismo tamaño que nums
+    max_values = []
+    queue = CircularQueueMax(n)  # Circular queue of same size as nums
 
     for i in range(n):
-        # Quitar los índices fuera del rango de la ventana
-        if not cola.esta_vacia() and cola.frente_valor() < i - k + 1:
-            cola.quitar_inicio()
+        # Remove indices out of window range
+        if not queue.is_empty() and queue.front_value() < i - k + 1:
+            queue.remove_start()
 
-        # Quitar del final los elementos menores que nums[i]
-        while not cola.esta_vacia() and nums[cola.final_valor()] < nums[i]:
-            cola.fin = (cola.fin - 1 + cola.tamaño) % cola.tamaño
-            cola.count -= 1
+        # Remove from end elements smaller than nums[i]
+        while not queue.is_empty() and nums[queue.end_value()] < nums[i]:
+            queue.end = (queue.end - 1 + queue.size) % queue.size
+            queue.count -= 1
 
-        # Agregar el índice actual
-        cola.agregar_final(i)
+        # Add current index
+        queue.add_end(i)
 
-        # Guardar el máximo si ya hay ventana completa
+        # Store the max if window is full
         if i >= k - 1:
-            maximos.append(nums[cola.frente_valor()])
+            max_values.append(nums[queue.front_value()])
 
-    return maximos
-
-# Probar con el ejemplo dado
-nums = [3,5,3,5,7,3,2,4]
-k = 4
-print(sliding_window_max_sin_deque(nums, k))
+    return max_values

@@ -1,52 +1,71 @@
-class Task:
-    def __init__(self, name, total_time):
-        self.name = name
-        self.total_time = total_time  # Tiempo total requerido por el proceso
-        self.remaining_time = total_time  # Tiempo restante para el proceso
+class CircularQueueMax:
+    def __init__(self, size):
+        self.size = size
+        self.queue = [0] * size  # Stores indices
+        self.start = 0
+        self.end = 0
+        self.count = 0
 
-def round_robin_scheduling(tasks, time_quantum):
-    queue = tasks[:]  # Hacemos una copia de la lista de tareas
-    total_waiting_time = 0
-    total_turnaround_time = 0
-    time_elapsed = 0
-    completed_tasks = 0  # Para llevar el control de los procesos completados
+    def is_empty(self):
+        return self.count == 0
 
-    front = 0  # Índice que indica el primer proceso (frente de la cola)
+    def is_full(self):
+        return self.count == self.size
 
-    while completed_tasks < len(tasks):  # Mientras no todos los procesos estén completos
-        task = queue[front]  # Tomamos el primer proceso de la cola
+    def add_end(self, value):
+        if not self.is_full():
+            self.queue[self.end] = value
+            self.end = (self.end + 1) % self.size
+            self.count += 1
 
-        if task.remaining_time > time_quantum:
-            # Si el proceso necesita más tiempo que el quantum, reduce el tiempo restante
-            task.remaining_time -= time_quantum
-            time_elapsed += time_quantum
-        else:
-            # Si el proceso termina en este ciclo
-            time_elapsed += task.remaining_time
-            turnaround_time = time_elapsed
-            waiting_time = turnaround_time - task.total_time
-            total_turnaround_time += turnaround_time
-            total_waiting_time += waiting_time
-            print(f"Proceso {task.name} completado. Tiempo de espera: {waiting_time}, Tiempo de retorno: {turnaround_time}")
-            completed_tasks += 1  # Incrementamos los procesos completados
-            task.remaining_time = 0  # El proceso ha terminado
+    def remove_start(self):
+        if not self.is_empty():
+            value = self.queue[self.start]
+            self.start = (self.start + 1) % self.size
+            self.count -= 1
+            return value
 
-        # Avanzamos cíclicamente al siguiente proceso (simulando una cola circular)
-        front = (front + 1) % len(queue)
+    def end_value(self):
+        return self.queue[(self.end - 1 + self.size) % self.size]
 
-    # Calcular los promedios de tiempo de espera y tiempo de retorno
-    num_tasks = len(tasks)
-    avg_waiting_time = total_waiting_time / num_tasks
-    avg_turnaround_time = total_turnaround_time / num_tasks
+    def front_value(self):
+        return self.queue[self.start]
 
-    print(f"\nTiempo promedio de espera: {avg_waiting_time}")
-    print(f"Tiempo promedio de retorno: {avg_turnaround_time}")
+    def traverse(self):
+        res = []
+        i = self.start
+        for _ in range(self.count):
+            res.append(self.queue[i])
+            i = (i + 1) % self.size
+        return res
 
-# Ejemplo de uso
-tasks = [
-    Task("T1", 10),  # Proceso con tiempo total de 10 unidades
-    Task("T2", 5),   # Proceso con tiempo total de 5 unidades
-    Task("T3", 8)    # Proceso con tiempo total de 8 unidades
-]
+def sliding_window_max_no_deque(nums, k):
+    if not nums or k == 0:
+        return []
 
-round_robin_scheduling(tasks, time_quantum=4)
+    n = len(nums)
+    max_values = []
+    queue = CircularQueueMax(n)  # Circular queue of same size as nums
+
+    for i in range(n):
+        # Remove indices out of window range
+        if not queue.is_empty() and queue.front_value() < i - k + 1:
+            queue.remove_start()
+
+        # Remove from end elements smaller than nums[i]
+        while not queue.is_empty() and nums[queue.end_value()] < nums[i]:
+            queue.end = (queue.end - 1 + queue.size) % queue.size
+            queue.count -= 1
+
+        # Add current index
+        queue.add_end(i)
+
+        # Store the max if window is full
+        if i >= k - 1:
+            max_values.append(nums[queue.front_value()])
+
+    return max_values
+
+num = [1, 3, -1, -3, 5, 3, 6, 7]
+k = 3
+print(sliding_window_max_no_deque(num, k))  # Output: [3, 3, 5, 5, 6, 7]
