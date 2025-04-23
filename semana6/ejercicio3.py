@@ -71,6 +71,6 @@ class TrafficLightSimulation:
         print(f"North-South - Avg Wait: {self.north_south.get_average_wait():.2f}   , Max Queue: {self.north_south.get_max_length()}")
         print(f"East-West   - Avg Wait: {self.east_west.get_average_wait():.2f}, Max Queue: {self.east_west.get_max_length()}")
 
-# ✅ Test run
+# Test cases
 sim = TrafficLightSimulation(green_duration=3, total_time=4)
 sim.simulate()
