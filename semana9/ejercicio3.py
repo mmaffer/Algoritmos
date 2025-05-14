@@ -79,4 +79,4 @@ unbalanced_root.children = [ub_b]
 ub_b.children = [ub_c]
 ub_c.children = [ub_d]
 unbalanced_tree = GenericTree(unbalanced_root)
-print(unbalanced_tree.height() == 4)  # 📈 Deep path
+print(unbalanced_tree.height() == 4)  #  Deep path
