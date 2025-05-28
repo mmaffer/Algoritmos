@@ -71,21 +71,6 @@ class BinarySearchTree:
         return None  # ❌ No se encontró (caso raro si los valores están en el árbol)
 
 
-# ✅ Función validadora para lista doblemente enlazada circular
-
-def validate_circular_dll(head, expected_values):
-    if not head:
-        return expected_values == []  # 📭 Si la lista está vacía, debe coincidir con lista vacía esperada
-    values = []
-    current = head
-    while True:
-        values.append(current.get_value())         # 📥 Guardamos el valor actual
-        current = current.get_right()              # ➡️ Avanzamos al siguiente
-        if current == head:
-            break                                  # 🔁 Si volvemos al inicio, se completa el ciclo
-    return values == expected_values               # ✅ Comparamos con los valores esperados
-
-
 # ✅ Función auxiliar para crear un árbol desde una lista
 
 def build_bst(values):
