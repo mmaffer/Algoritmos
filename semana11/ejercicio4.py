@@ -1,54 +1,77 @@
-# Definition for a binary search tree node
-class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val          # Value of the node
-        self.left = left        # Left child
-        self.right = right      # Right child
+class BinarySearchTreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
 
-# Helper function to insert values into BST
-def insert_into_bst(root, val):
-    if not root:
-        return TreeNode(val)    # If the tree is empty, create a new node
-    if val < root.val:
-        root.left = insert_into_bst(root.left, val)   # Insert into left subtree
-    else:
-        root.right = insert_into_bst(root.right, val) # Insert into right subtree
-    return root
+class BinarySearchTree:
+    def __init__(self):
+        self.root = None
 
-# Helper function to build a BST from a list of values
-def build_bst(values):
-    root = None
-    for v in values:
-        root = insert_into_bst(root, v)  # Insert each value into the BST
-    return root
+    def insert(self, val):
+        if not self.root:
+            self.root = BinarySearchTreeNode(val)
+        else:
+            self._insert(self.root, val)
 
-# Main function to find the kth smallest element in the BST
-def kth_smallest(root, k):
-    """Find kth smallest element in BST"""
-    count = 0       # Counter to track the number of nodes visited
-    result = None   # To store the kth smallest value once found
+    def _insert(self, node, val):
+        if val < node.val:
+            if node.left:
+                self._insert(node.left, val)
+            else:
+                node.left = BinarySearchTreeNode(val)
+        else:
+            if node.right:
+                self._insert(node.right, val)
+            else:
+                node.right = BinarySearchTreeNode(val)
 
-    # In-order traversal helper function (left -> root -> right)
-    def inorder(node):
-        nonlocal count, result
-        if node is None or result is not None:
-            return  # Stop if node is null or if we've already found the result
+    def build_from_list(self, vals):
+        for val in vals:
+            self.insert(val)
 
-        inorder(node.left)   # Visit left subtree first
+    def kth_smallest(self, k):
+        """📊 Find the kth smallest value in the BST"""
 
-        count += 1           # Increment count after visiting a node
-        if count == k:
-            result = node.val  # Found the kth smallest node
-            return
+        self.count = 0       # To count how many nodes visited so far
+        self.result = None   # To store kth smallest when found
 
-        inorder(node.right)  # Visit right subtree if needed
+        def inorder(node):
+            if not node or self.result is not None:
+                return  # Stop if node is None or kth smallest found
 
-    inorder(root)            # Start in-order traversal from the root
-    return result            # Return the result found
+            inorder(node.left)  # Traverse left subtree
+
+            self.count += 1     # Visit current node
+            if self.count == k:  # Check if current is kth smallest
+                self.result = node.val
+                return
+
+            inorder(node.right)  # Traverse right subtree
+
+        inorder(self.root)
+        return self.result
 
 
-print(kth_smallest(build_bst([3, 1, 4, 2]), 2) == 2)  # 🎯 Second smallest
-print(kth_smallest(build_bst([5, 3, 7, 2, 4, 6, 8]), 1) == 2)  # 📊 Minimum value
-print(kth_smallest(build_bst([5, 3, 7, 2, 4, 6, 8]), 7) == 8)  # 📈 Maximum value
-print(kth_smallest(build_bst([4, 2, 6, 1, 3, 5, 7]), 4) == 4)  # 🔗 Middle element
-print(kth_smallest(build_bst([10]), 1) == 10)  # 🌱 Single node
+# 🧪 Test cases
+def test_kth_smallest():
+    bst1 = BinarySearchTree()
+    bst1.build_from_list([3, 1, 4, 2])
+    print("🧪 Test 1:", bst1.kth_smallest(2) == 2)  # 🎯
+
+    bst2 = BinarySearchTree()
+    bst2.build_from_list([5, 3, 7, 2, 4, 6, 8])
+    print("🧪 Test 2:", bst2.kth_smallest(1) == 2)  # 📉 First (min)
+
+    print("🧪 Test 3:", bst2.kth_smallest(7) == 8)  # 📈 Last (max)
+
+    bst3 = BinarySearchTree()
+    bst3.build_from_list([4, 2, 6, 1, 3, 5, 7])
+    print("🧪 Test 4:", bst3.kth_smallest(4) == 4)  # 🔗 Middle
+
+    bst4 = BinarySearchTree()
+    bst4.build_from_list([10])
+    print("🧪 Test 5:", bst4.kth_smallest(1) == 10)  # 🌱 Single node
+
+# 🚀 Run tests
+test_kth_smallest()

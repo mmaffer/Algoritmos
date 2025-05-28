@@ -1,66 +1,102 @@
-# Clase para representar un nodo del árbol BST
-class TreeNode:
+# ✅ Clase Node con encapsulamiento
+class _Node:
     def __init__(self, value):
-        self.value = value        # 📌 Valor del nodo
-        self.left = None          # 👈 Referencia al subárbol izquierdo
-        self.right = None         # 👉 Referencia al subárbol derecho
+        self.__value = value          # 🔐 Valor del nodo (privado)
+        self.__left = None            # 🔐 Hijo izquierdo (privado)
+        self.__right = None           # 🔐 Hijo derecho (privado)
 
-# Función que encuentra el Ancestro Común Más Bajo (LCA) en un BST
-def find_lca(root, val1, val2):
-    """Encuentra el ancestro común más bajo entre dos valores en un BST"""
+    def get_value(self):
+        return self.__value           # ✅ Devuelve el valor del nodo
 
-    while root:  # 🔁 Mientras no lleguemos a un nodo nulo
-        if val1 < root.value and val2 < root.value:
-            root = root.left     # 👈 Si ambos valores son menores, ir a la izquierda
-        elif val1 > root.value and val2 > root.value:
-            root = root.right    # 👉 Si ambos valores son mayores, ir a la derecha
+    def get_left(self):
+        return self.__left            # ✅ Devuelve el hijo izquierdo
+
+    def get_right(self):
+        return self.__right           # ✅ Devuelve el hijo derecho
+
+    def set_left(self, node):
+        self.__left = node           # ✅ Asigna un nuevo hijo izquierdo
+
+    def set_right(self, node):
+        self.__right = node          # ✅ Asigna un nuevo hijo derecho
+
+
+# ✅ Clase BinarySearchTree con encapsulamiento
+class BinarySearchTree:
+    def __init__(self):
+        self.__root = None           # 🔐 Raíz del árbol (privado)
+
+    def insert(self, value):
+        if self.__root is None:
+            self.__root = _Node(value)         # 🌱 Si el árbol está vacío, insertamos en la raíz
         else:
-            return root.value    # 🎯 Si están en lados opuestos o uno es el actual, este es el LCA
+            self.__insert(self.__root, value)  # 🔁 Llamada recursiva para insertar en la posición correcta
 
-# Función para construir un árbol binario de búsqueda (BST) a partir de una lista
+    def __insert(self, node, value):
+        if value < node.get_value():                     # 👈 Si el valor es menor, va al subárbol izquierdo
+            if node.get_left() is None:
+                node.set_left(_Node(value))              # 🌿 Insertamos como nuevo hijo izquierdo
+            else:
+                self.__insert(node.get_left(), value)    # 🔁 Repetimos con el hijo izquierdo
+        else:
+            if node.get_right() is None:
+                node.set_right(_Node(value))             # 🌿 Insertamos como nuevo hijo derecho
+            else:
+                self.__insert(node.get_right(), value)   # 🔁 Repetimos con el hijo derecho
+
+    def build_from_list(self, values):
+        for val in values:
+            self.insert(val)           # 🔁 Inserta cada valor de la lista en el árbol
+
+    # ✅ Challenge 2: Lowest Common Ancestor
+    def find_lca(self, val1, val2):
+        """
+        🧬 Encuentra el ancestro común más bajo (Lowest Common Ancestor) de dos valores en el BST
+
+        Ejemplo cotidiano: Imagínate que val1 y val2 son dos personas de una familia.
+        Este método busca cuál es su ancestro en común más cercano, como si fuera su abuelo más directo en un árbol genealógico.
+        """
+        node = self.__root  # 👨‍👧 Punto de partida desde la raíz del árbol
+
+        while node:  # 🔁 Mientras existan nodos por explorar
+            val = node.get_value()  # 📌 Obtenemos el valor del nodo actual
+
+            if val1 < val and val2 < val:
+                node = node.get_left()  # 👈 Ambos valores están en el subárbol izquierdo
+            elif val1 > val and val2 > val:
+                node = node.get_right() # 👉 Ambos valores están en el subárbol derecho
+            else:
+                return val  # 🎯 Si están en lados distintos o uno es igual al nodo actual, este es el LCA
+
+        return None  # ❌ No se encontró (caso raro si los valores están en el árbol)
+
+
+# ✅ Función validadora para lista doblemente enlazada circular
+
+def validate_circular_dll(head, expected_values):
+    if not head:
+        return expected_values == []  # 📭 Si la lista está vacía, debe coincidir con lista vacía esperada
+    values = []
+    current = head
+    while True:
+        values.append(current.get_value())         # 📥 Guardamos el valor actual
+        current = current.get_right()              # ➡️ Avanzamos al siguiente
+        if current == head:
+            break                                  # 🔁 Si volvemos al inicio, se completa el ciclo
+    return values == expected_values               # ✅ Comparamos con los valores esperados
+
+
+# ✅ Función auxiliar para crear un árbol desde una lista
+
 def build_bst(values):
-    """Construye un BST a partir de una lista de valores"""
-    def insert(root, val):
-        if not root:                         # Si el nodo actual está vacío
-            return TreeNode(val)             # Crea un nuevo nodo con el valor
-        if val < root.value:                 # Si el valor es menor, insertamos a la izquierda
-            root.left = insert(root.left, val)
-        else:                                # Si el valor es mayor o igual, insertamos a la derecha
-            root.right = insert(root.right, val)
-        return root                          # Retorna la raíz después de insertar
+    bst = BinarySearchTree()           # 🌳 Creamos una nueva instancia de árbol
+    bst.build_from_list(values)       # 🧱 Construimos el árbol desde la lista
+    return bst                         # 🔁 Lo retornamos para usarlo en pruebas
 
-    root = None                              # Inicializa el árbol vacío
-    for v in values:
-        root = insert(root, v)               # Inserta cada valor en el árbol
-    return root                              # Retorna el árbol completo construido
 
-# ✅ Test cases
-# Test 1: Values in different subtrees
-# BST: [6, 2, 8, 0, 4, 7, 9, 3, 5]
-# Values: 2, 8
-# Expected: 6
-print(find_lca(build_bst([6, 2, 8, 0, 4, 7, 9, 3, 5]), 2, 8) == 6)  # 🌲 Root as LCA
-
-# Test 2: Values in same subtree
-# BST: [6, 2, 8, 0, 4, 7, 9, 3, 5]
-# Values: 0, 4
-# Expected: 2
-print(find_lca(build_bst([6, 2, 8, 0, 4, 7, 9, 3, 5]), 0, 4) == 2)  # 📊 Subtree LCA
-
-# Test 3: One value is ancestor of other
-# BST: [6, 2, 8, 0, 4, 7, 9, 3, 5]
-# Values: 2, 3
-# Expected: 2
-print(find_lca(build_bst([6, 2, 8, 0, 4, 7, 9, 3, 5]), 2, 3) == 2)  # 🔗 Ancestor relationship
-
-# Test 4: Same values
-# BST: [5, 3, 7]
-# Values: 5, 5
-# Expected: 5
-print(find_lca(build_bst([5, 3, 7]), 5, 5) == 5)  # 🎯 Same node
-
-# Test 5: Values at leaf level
-# BST: [4, 2, 6, 1, 3, 5, 7]
-# Values: 1, 3
-# Expected: 2
-print(find_lca(build_bst([4, 2, 6, 1, 3, 5, 7]), 1, 3) == 2)  # 🌱 Leaf nodes
+# ✅ Casos de prueba para el Challenge 2 (Lowest Common Ancestor)
+print("Test 1:", build_bst([6, 2, 8, 0, 4, 7, 9, 3, 5]).find_lca(2, 8) == 6)  # 🌲 Raíz como LCA
+print("Test 2:", build_bst([6, 2, 8, 0, 4, 7, 9, 3, 5]).find_lca(0, 4) == 2)  # 📊 Subárbol izquierdo como LCA
+print("Test 3:", build_bst([6, 2, 8, 0, 4, 7, 9, 3, 5]).find_lca(2, 3) == 2)  # 🔗 Uno es ancestro directo del otro
+print("Test 4:", build_bst([5, 3, 7]).find_lca(5, 5) == 5)                    # 🎯 Mismo nodo como LCA
+print("Test 5:", build_bst([4, 2, 6, 1, 3, 5, 7]).find_lca(1, 3) == 2)         # 🌱 Hojas con ancestro común

@@ -5,6 +5,35 @@ class TreeNode:
         self.val = val      # Store the node's value
         self.left = left    # Reference to the left child node
         self.right = right  # Reference to the right child node
+class BinarySearchTree:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, val):
+        if not self.root:
+            self.root = TreeNode(val)
+            return
+        current = self.root
+        while True:
+            if val < current.val:
+                if current.left:
+                    current = current.left
+                else:
+                    current.left = TreeNode(val)
+                    return
+            else:
+                if current.right:
+                    current = current.right
+                else:
+                    current.right = TreeNode(val)
+                    return
+
+    def build_from_list(self, values):
+        for val in values:
+            self.insert(val)
+
+    def is_valid_bst(self):
+        return is_valid_bst(self.root)
 
 # Function to determine whether a binary tree is a valid BST
 def is_valid_bst(root):
@@ -67,32 +96,30 @@ def build_invalid_tree2():
     root.right = TreeNode(4)
     return root
 
-# ✅ Test cases
-# Test 1: Valid BST
-# Tree:    5
-#         / \
-#        3   7
-#       / \ / \
-#      2  4 6  8
-print(is_valid_bst(build_tree([5, 3, 7, 2, 4, 6, 8])) == True)  # ✅ Valid BST
+# 🧪 Test cases
+def test_is_valid_bst():
+    bst1 = BinarySearchTree()
+    bst1.build_from_list([5, 3, 7, 2, 4, 6, 8])
+    print("🧪 Test 1:", bst1.is_valid_bst() == True)  # ✅ Valid tree
 
-# Test 2: Invalid BST - left violation
-# Tree:    5
-#         / \
-#        6   7  (6 > 5, violates BST)
-print(is_valid_bst(build_invalid_tree1()) == False)  # ❌ Left violation
+    bst2 = BinarySearchTree()
+    bst2.root = TreeNode(5)
+    bst2.root.left = TreeNode(6)  # ❌ Incorrect: left > root
+    bst2.root.right = TreeNode(7)
+    print("🧪 Test 2:", bst2.is_valid_bst() == False)  # ❌ Left violation
 
-# Test 3: Invalid BST - right violation
-# Tree:    5
-#         / \
-#        3   4  (4 < 5, violates BST)
-print(is_valid_bst(build_invalid_tree2()) == False)  # ❌ Right violation
+    bst3 = BinarySearchTree()
+    bst3.root = TreeNode(5)
+    bst3.root.left = TreeNode(3)
+    bst3.root.right = TreeNode(4)  # ❌ Incorrect: right < root
+    print("🧪 Test 3:", bst3.is_valid_bst() == False)  # ❌ Right violation
 
-# Test 4: Single node
-# Tree: 42
-print(is_valid_bst(build_tree([42])) == True)  # 🌱 Single node valid
+    bst4 = BinarySearchTree()
+    bst4.build_from_list([42])
+    print("🧪 Test 4:", bst4.is_valid_bst() == True)  # 🌱 Single node
 
-# Test 5: Empty tree
-# Tree: None
-print(is_valid_bst(None) == True)  # 📭 Empty tree valid
+    bst5 = BinarySearchTree()
+    print("🧪 Test 5:", bst5.is_valid_bst() == True)  # 📭 Empty tree
 
+# 🚀 Run tests
+test_is_valid_bst()

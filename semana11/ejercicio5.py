@@ -1,131 +1,131 @@
-# Clase que representa un nodo de un árbol binario (también usado para la lista doble)
-class TreeNode:
+# ✅ Clase Node con encapsulamiento
+class _Node:
     def __init__(self, value):
-        self.value = value        # 📌 Valor del nodo
-        self.left = None          # ⬅️ En la lista: apuntará al nodo anterior
-        self.right = None         # ➡️ En la lista: apuntará al nodo siguiente
+        self.__value = value          # 🔐 Valor del nodo (privado)
+        self.__left = None            # 🔐 Hijo izquierdo (privado)
+        self.__right = None           # 🔐 Hijo derecho (privado)
 
-# Función para construir un árbol binario de búsqueda (BST) a partir de una lista
-def build_bst(values):
-    """Construye un BST balanceado desde una lista"""
+    def get_value(self):
+        return self.__value           # ✅ Devuelve el valor del nodo
 
-    # Función auxiliar recursiva para insertar un valor en el árbol
-    def insert(root, val):
-        if not root:                         # 🌱 Si el nodo actual está vacío
-            return TreeNode(val)             # 🧱 Crea un nuevo nodo
-        if val < root.value:                 # Si el valor es menor, va a la izquierda
-            root.left = insert(root.left, val)
-        else:                                # Si es mayor o igual, va a la derecha
-            root.right = insert(root.right, val)
-        return root                          # Retorna la raíz actualizada
+    def get_left(self):
+        return self.__left            # ✅ Devuelve el hijo izquierdo
 
-    root = None                              # 🌳 Inicializa el árbol vacío
-    for v in values:
-        root = insert(root, v)               # Inserta cada valor en el árbol
-    return root                              # Retorna el árbol construido
+    def get_right(self):
+        return self.__right           # ✅ Devuelve el hijo derecho
 
-# Función para construir un árbol degenerado (solo ramas hacia la derecha)
-def build_degenerate_bst(values):
-    """Construye un BST degenerado (como una lista hacia la derecha)"""
-    if not values:                           # Si la lista está vacía
-        return None                          # Retorna árbol vacío
-    root = TreeNode(values[0])               # 🌱 El primer valor es la raíz
-    current = root
-    for val in values[1:]:                   # Inserta cada valor a la derecha
-        current.right = TreeNode(val)
-        current = current.right
-    return root                              # Retorna la raíz del árbol degenerado
+    def set_left(self, node):
+        self.__left = node           # ✅ Asigna un nuevo hijo izquierdo
 
-# Función principal que convierte un BST en una lista doble circular
-def bst_to_dll(root):
-    """Convierte un BST en una lista doble circular ordenada"""
+    def set_right(self, node):
+        self.__right = node          # ✅ Asigna un nuevo hijo derecho
 
-    def inorder(node):
-        nonlocal last, head                  # Acceso a variables externas
 
-        if not node:                         # 🛑 Si el nodo está vacío, termina
-            return
+# ✅ Clase BinarySearchTree con encapsulamiento
+class BinarySearchTree:
+    def __init__(self):
+        self.__root = None           # 🔐 Raíz del árbol (privado)
 
-        inorder(node.left)                   # 🔁 Visita el subárbol izquierdo
-
-        if last:                             # Si ya hay un nodo visitado antes
-            last.right = node                # ➡️ El último apunta al nodo actual
-            node.left = last                 # ⬅️ El actual apunta al último
+    def insert(self, value):
+        if self.__root is None:
+            self.__root = _Node(value)         # 🌱 Si el árbol está vacío, insertamos en la raíz
         else:
-            head = node                      # 🌱 Si es el primero, se marca como cabeza
+            self.__insert(self.__root, value)  # 🔁 Llamada recursiva para insertar en la posición correcta
 
-        last = node                          # 🔄 Actualiza el último nodo procesado
+    def __insert(self, node, value):
+        if value < node.get_value():                     # 👈 Si el valor es menor, va al subárbol izquierdo
+            if node.get_left() is None:
+                node.set_left(_Node(value))              # 🌿 Insertamos como nuevo hijo izquierdo
+            else:
+                self.__insert(node.get_left(), value)    # 🔁 Repetimos con el hijo izquierdo
+        else:
+            if node.get_right() is None:
+                node.set_right(_Node(value))             # 🌿 Insertamos como nuevo hijo derecho
+            else:
+                self.__insert(node.get_right(), value)   # 🔁 Repetimos con el hijo derecho
 
-        inorder(node.right)                  # 🔁 Visita el subárbol derecho
+    def build_from_list(self, values):
+        for val in values:
+            self.insert(val)           # 🔁 Inserta cada valor de la lista en el árbol
 
-    if not root:                             # Si el árbol está vacío
-        return None                          # Retorna None
-    
+    # ✅ Challenge 5: Convertir BST a Lista Doblemente Enlazada Circular
+    def bst_to_dll(self):
+        """
+        🔄 Convierte el BST en una lista doblemente enlazada circular en orden ascendente.
 
-    head, last = None, None                  # Inicializa punteros globales
-    inorder(root)                            # 🔁 Inicia recorrido in-order
+        Ejemplo cotidiano: Es como recorrer un álbum de fotos en orden y luego unir la primera y última foto para
+        que puedas navegar infinitamente hacia adelante o hacia atrás.
+        """
+        if not self.__root:
+            return None  # 📭 Si el árbol está vacío, devolvemos None
 
-    head.left = last                         # 🔁 Conecta la cabeza con la cola (circular)
-    last.right = head
+        self.__prev = None  # 🔁 Apuntador al nodo anterior en el recorrido
+        self.__head = None  # 🎯 Referencia al primer nodo (inicio de la lista)
 
-    return head                              # 🚪 Retorna el inicio de la lista circular
+        def inorder(node):
+            if not node:
+                return
+            inorder(node.get_left())  # ⬅️ Recorremos subárbol izquierdo primero
 
-# Función para validar que la lista doble circular sea correcta
-def validate_circular_dll(head, expected):
-    if not head:                             # Si la cabeza es None
-        return expected == []                # Retorna True si se esperaba lista vacía
+            if self.__prev:
+                self.__prev.set_right(node)  # ➡️ Enlazamos nodo anterior con el actual (derecha)
+                node.set_left(self.__prev)  # ⬅️ Enlazamos actual con el anterior (izquierda)
+            else:
+                self.__head = node  # 🎯 Guardamos el primer nodo como cabeza
 
-    result = []                              # Lista para guardar recorrido
-    node = head
+            self.__prev = node  # 📌 Actualizamos el nodo anterior al actual
+
+            inorder(node.get_right())  # ➡️ Recorremos subárbol derecho
+
+        inorder(self.__root)  # 🚀 Iniciamos el recorrido inorden desde la raíz
+
+        # 🔗 Cerramos la lista: conectamos cabeza y último nodo
+        self.__head.set_left(self.__prev)
+        self.__prev.set_right(self.__head)
+
+        return self.__head  # 🎉 Retornamos el inicio de la lista circular
+
+
+# ✅ Función validadora para lista doblemente enlazada circular
+
+def validate_circular_dll(head, expected_values):
+    if not head:
+        return expected_values == []  # 📭 Si la lista está vacía, debe coincidir con lista vacía esperada
+    values = []
+    current = head
     while True:
-        result.append(node.value)            # Agrega el valor actual
-        node = node.right                    # Mueve al siguiente nodo
-        if node == head:                     # Si regresa al inicio, se detiene
-            break
-    return result == expected                # Compara con la lista esperada
+        values.append(current.get_value())         # 📥 Guardamos el valor actual
+        current = current.get_right()              # ➡️ Avanzamos al siguiente
+        if current == head:
+            break                                  # 🔁 Si volvemos al inicio, se completa el ciclo
+    return values == expected_values               # ✅ Comparamos con los valores esperados
 
 
-# Test 1: BST con 3 nodos
-dll1 = bst_to_dll(build_bst([2, 1, 3]))
-print(validate_circular_dll(dll1, [1, 2, 3]))  # ✅ True
+# ✅ Función auxiliar para crear un árbol desde una lista
 
-# Test 2: BST de un solo nodo
-dll2 = bst_to_dll(build_bst([5]))
-print(validate_circular_dll(dll2, [5]))        # ✅ True
-
-# Test 3: Árbol vacío
-dll3 = bst_to_dll(None)
-print(dll3 is None)                            # ✅ True
+def build_bst(values):
+    bst = BinarySearchTree()           # 🌳 Creamos una nueva instancia de árbol
+    bst.build_from_list(values)       # 🧱 Construimos el árbol desde la lista
+    return bst                         # 🔁 Lo retornamos para usarlo en pruebas
 
 
-# ✅ Test cases
-# Test 1: Simple BST
-# BST:   2        DLL: 1 <-> 2 <-> 3 (circular)
-#       / \
-#      1   3
-head1 = bst_to_dll(build_bst([2, 1, 3]))
-print(validate_circular_dll(head1, [1, 2, 3]) == True)  # 🔗 Simple conversion
+# ✅ Casos de prueba para Challenge 5 (Conversión a lista doblemente enlazada)
+bst1 = build_bst([2, 1, 3])
+head1 = bst1.bst_to_dll()
+print("Test 1:", validate_circular_dll(head1, [1, 2, 3]))  # 🔗 Lista ordenada pequeña
 
-# Test 2: Larger BST
-# BST: [4, 2, 6, 1, 3, 5, 7]
-# DLL: 1 <-> 2 <-> 3 <-> 4 <-> 5 <-> 6 <-> 7 (circular)
-head2 = bst_to_dll(build_bst([4, 2, 6, 1, 3, 5, 7]))
-print(validate_circular_dll(head2, [1, 2, 3, 4, 5, 6, 7]) == True)  # 📊 Complex conversion
+bst2 = build_bst([4, 2, 6, 1, 3, 5, 7])
+head2 = bst2.bst_to_dll()
+print("Test 2:", validate_circular_dll(head2, [1, 2, 3, 4, 5, 6, 7]))  # 🌳 Lista completa
 
-# Test 3: Single node
-# BST: 5
-# DLL: 5 (points to itself)
-head3 = bst_to_dll(build_bst([5]))
-print(validate_circular_dll(head3, [5]) == True)  # 🌱 Single node
+bst3 = build_bst([5])
+head3 = bst3.bst_to_dll()
+print("Test 3:", validate_circular_dll(head3, [5]))  # 🌱 Árbol con un solo nodo
 
-# Test 4: Degenerate BST (like linked list)
-# BST: 1 -> 2 -> 3 -> 4
-# DLL: 1 <-> 2 <-> 3 <-> 4 (circular)
-head4 = bst_to_dll(build_degenerate_bst([1, 2, 3, 4]))
-print(validate_circular_dll(head4, [1, 2, 3, 4]) == True)  # 📈 Degenerate case
+bst4 = build_bst([1, 2, 3, 4])
+head4 = bst4.bst_to_dll()
+print("Test 4:", validate_circular_dll(head4, [1, 2, 3, 4]))  # 📈 Árbol degenerado tipo lista
 
-# Test 5: Empty tree
-# BST: None
-# DLL: None
-head5 = bst_to_dll(None)
-print(head5 is None)  # 📭 Empty tree
+bst5 = build_bst([])
+head5 = bst5.bst_to_dll()
+print("Test 5:", head5 is None)  # 📭 Árbol vacío
